@@ -103,10 +103,15 @@ def atualizar_cursos(form):
         if 'curso' in campo.name:
             if campo.data:
                 lista_cursos.append(campo.label.text)
+
+
     if len(lista_cursos) > 0:
         return ';'.join(lista_cursos)
     else:
         return 'Não informado'
+
+
+
 
 @app.route('/perfil/editar', methods=['GET', 'POST'])
 @login_required
@@ -125,6 +130,20 @@ def editar_perfil():
     elif request.method == "GET":
         form.email.data = current_user.email
         form.username.data = current_user.username
+        #marca os checkbox
+        if 'Curso Excell' in current_user.cursos.split(';'):
+            form.curso_excell.data = True
+        if 'Curso Power Point' in current_user.cursos.split(';'):
+            form.curso_ppt.data = True
+        if 'Curso Python' in current_user.cursos.split(';'):
+            form.curso_python.data = True
+        if 'Curso VBA' in current_user.cursos.split(';'):
+            form.curso_vba.data = True
+        if 'Curso SQL' in current_user.cursos.split(';'):
+            form.curso_sql.data = True
+        if 'Curso Power BI' in current_user.cursos.split(';'):
+            form.curso_powerbi.data = True
+
     foto_perfil = url_for('static', filename='fotos_perfil/{}'.format(current_user.foto_perfil))
     return render_template('editarperfil.html', foto_perfil=foto_perfil, form=form)
 
