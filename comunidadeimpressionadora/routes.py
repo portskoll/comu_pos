@@ -110,9 +110,6 @@ def atualizar_cursos(form):
     else:
         return 'Não informado'
 
-
-
-
 @app.route('/perfil/editar', methods=['GET', 'POST'])
 @login_required
 def editar_perfil():
@@ -173,7 +170,7 @@ def excluir_post(post_id):
     if current_user == post.autor:
         database.session.delete(post)
         database.session.commit()
-        flash('Post excluido com Sucesso', 'alert-danger')
+        flash('Post excluido com Sucessos', 'alert-danger')
         return redirect(url_for('home'))
     else:
         abort(403)
