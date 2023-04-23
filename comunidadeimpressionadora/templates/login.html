@@ -69,6 +69,33 @@
             {% endif %}
           </div>
           <div class="form-group mt-2">
+            {{ form_criar_conta.apelido.label (class="form-control-label")}}
+            {% if form_criar_conta.apelido.errors %}
+            {{ form_criar_conta.apelido (class="form-control is-invalid")}}
+            <div class="invalid-feedback">
+              {% for erro in form_criar_conta.apelido.errors %}
+                {{ erro }}
+              {% endfor %}
+            </div>
+            {% else %}
+            {{ form_criar_conta.apelido(class="form-control")}}
+            {% endif %}
+          </div>
+
+          <div class="form-group mt-2">
+            {{ form_criar_conta.aniversario.label (class="form-control-label")}}
+            {% if form_criar_conta.aniversario.errors %}
+            {{ form_criar_conta.aniversario (class="form-control is-invalid")}}
+            <div class="invalid-feedback">
+              {% for erro in form_criar_conta.aniversario.errors %}
+                {{ erro }}
+              {% endfor %}
+            </div>
+            {% else %}
+            {{ form_criar_conta.aniversario(class="form-control")}}
+            {% endif %}
+          </div>
+          <div class="form-group mt-2">
             {{ form_criar_conta.email.label (class="form-control-label")}}
             {% if form_criar_conta.email.errors %}
             {{ form_criar_conta.email (class="form-control is-invalid")}}

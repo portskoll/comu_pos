@@ -17,3 +17,7 @@ login_manager.login_message_category = 'alert-info'
 
 from comunidadeimpressionadora import routes
 
+@app.before_first_request
+def create_tables():
+    database.create_all()
+

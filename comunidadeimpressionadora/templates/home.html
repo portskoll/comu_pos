@@ -3,8 +3,8 @@
 {% block body%}
 
 <div class="container mt-3">
-    <h1 style="color: orange">Texugo Imports</h1>
-    <h3>Faça parte da nossa comunidade. deixe seu Post aqui</h3>
+    <h1 style="color: blue">Blog de Noticias</h1>
+    <h3>Faça parte da nossa comunidade. Deixe seu Post aqui</h3>
     <hr>
 
     {% for post in posts %}
@@ -18,23 +18,68 @@
                 <p>{{ post.data_criacao.strftime('%d/%m/%Y - %H:%M:%S') }}</p>
             </div>
 
-            <div class="container border mb-1 mt-2 meupostcursos">
-                <div class="row justify-content-center mb-1">
-                    <div class="col col-12" style="text-align: center">
-                        <strong>Cursos</strong><br>
-                        {% for curso in post.autor.cursos.split(';') %}
-                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" disabled>{{ curso }}</button>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
+
 
 
         </div>
         <div >
             <a class="link_dec" href="{{ url_for('exibir_post', post_id=post.id) }}"><h3>{{post.titulo}}</h3></a>
+            <h4>{{post.sub_titulo}}</h4>
             <p>{{post.corpo}}</p>
         </div>
+        <div class="container">
+
+    <div class="row">
+        <div class="col">
+
+            <form method="post" action="" class="border p-4 mt-2" enctype="multipart/form-data">
+                {{ form.csrf_token}}
+                <legend>Publique um comentário:</legend>
+                <fieldset>
+
+                    <div class="form-group">
+                        {{ form.comentario.label (class="form-control-label")}}
+                        {% if form.comentario.errors %}
+                        {{ form.comentario (class="form-control is-invalid")}}
+                        <div class="invalid-feedback">
+                            {% for erro in form.comentario.errors %}
+                            {{ erro }}
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.comentario(class="form-control")}}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+
+                        {{ form.id_post(value=post.id)}}
+
+                    </div>
+
+                </fieldset>
+
+                {{ form.botao_submit (class="btn-primary mt-2" )}}
+
+
+            </form>
+
+
+        </div>
+    </div>
+</div>
+
+                    <div class="container border mb-1 mt-2 meupostcursos">
+                <div class="row justify-content-center mb-1">
+                    <div class="col col-12" style="text-align: center">
+                        <strong>Comentarios</strong><br>
+                        {% for curso in com %}
+                        {% if curso.id_post == post.id %}
+                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" disabled>{{ curso.texto_comentario }}</button>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
 
     </div>
 

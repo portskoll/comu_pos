@@ -1,16 +1,31 @@
+import asyncio
+
 from flask import render_template, flash, redirect, url_for, request, abort
-from comunidadeimpressionadora.forms import FormLogin, FormCriarConta, FormEditarPerfil, FormCriarPost
+from comunidadeimpressionadora.forms import FormLogin, FormCriarConta, FormEditarPerfil, FormCriarPost, FormCriarComentario
 from comunidadeimpressionadora import app, database, bcrypt
-from comunidadeimpressionadora.models import Usuario, Post
+from comunidadeimpressionadora.models import Usuario, Post, Comentario
 from flask_login import login_user, logout_user, current_user, login_required
 import secrets
 import os
+from comunidadeimpressionadora.envia_codigo_email import enviar_email
 from PIL import Image
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 def home():
+
+    form_com = FormCriarComentario()
+    if form_com.validate_on_submit():
+        post = Comentario(
+            texto_comentario=form_com.comentario.data, autor_com=current_user, id_post=form_com.id_post.data)
+        database.session.add(post)
+        database.session.commit()
+        flash('Comentário slavo com sucesso!', 'alert-success')
+        return redirect(url_for('home'))
+
+
     posts = Post.query.order_by(Post.id.desc())
-    return render_template('home.html', posts=posts)
+    com = Comentario.query.order_by(Comentario.id.desc())
+    return render_template('home.html', posts=posts, form=form_com, com = com)
 
 
 @app.route('/contato')
@@ -44,10 +59,19 @@ def login():
             flash('Falha de Login. Email ou Senha Incorretos', 'alert-danger')
     if form_criar_conta.validate_on_submit() and 'botao_submit_criar_conta' in request.form:
         senha_crypt = bcrypt.generate_password_hash(form_criar_conta.senha.data)
-        usuario = Usuario(username=form_criar_conta.username.data, email=form_criar_conta.email.data, senha=senha_crypt)
+        usuario = Usuario(
+            username=form_criar_conta.username.data,
+            apelido=form_criar_conta.apelido.data,
+            data_nascimento=form_criar_conta.aniversario.data,
+            bloqueado=False,
+            cod_ativado=False,
+            tipo_user=3,
+            email=form_criar_conta.email.data,
+            senha=senha_crypt)
         database.session.add(usuario)
         database.session.commit()
         flash(f'Conta criada com sucesso  para o e-mail: {form_criar_conta.email.data}', 'alert-success')
+
         return redirect(url_for('home'))
 
     return render_template('login.html', form_login=form_login, form_criar_conta=form_criar_conta)
@@ -73,7 +97,7 @@ def perfil():
 def criar_post():
     form = FormCriarPost()
     if form.validate_on_submit():
-        post = Post(titulo=form.titulo.data, corpo=form.corpo.data, autor=current_user)
+        post = Post(sub_titulo=form.sub_titulo.data, titulo=form.titulo.data, corpo=form.corpo.data, autor=current_user)
         database.session.add(post)
         database.session.commit()
         flash('Post Gravado com Sucesso', 'alert-success')
@@ -152,9 +176,11 @@ def exibir_post(post_id):
         form = FormCriarPost()
         if request.method == 'GET':
             form.titulo.data = post.titulo
+            form.sub_titulo.data = post.sub_titulo
             form.corpo.data = post.corpo
         elif form.validate_on_submit():
             post.titulo = form.titulo.data
+            post.sub_titulo = form.sub_titulo.data
             post.corpo = form.corpo.data
             database.session.commit()
             flash('Post Alterado com Sucesso', 'alert-success')

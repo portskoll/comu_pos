@@ -1,12 +1,14 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, HiddenField, DateField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from comunidadeimpressionadora.models import Usuario
 from flask_login import current_user
 
 class FormCriarConta(FlaskForm):
     username = StringField('Nome de Usuario', validators=[DataRequired()])
+    apelido = StringField('Apelido', validators=[DataRequired()])
+    aniversario = DateField('Data de Nascimento', validators=[DataRequired()])
     email = StringField('E-mail', validators=[DataRequired(), Email()])
     senha = PasswordField('Senha', validators=[DataRequired(), Length(6, 20)])
     confirmacao = PasswordField('Confirmação da Senha', validators=[DataRequired(), EqualTo('senha')])
@@ -46,5 +48,11 @@ class FormEditarPerfil(FlaskForm):
 
 class FormCriarPost(FlaskForm):
     titulo = StringField('Titulo do post', validators=[DataRequired(), Length(2, 140)])
+    sub_titulo = StringField('Sub Titulo do post', validators=[DataRequired(), Length(2, 140)])
     corpo = TextAreaField('Escreva seu Post Aqui', validators=[DataRequired()])
+    botao_submit = SubmitField('Salvar')
+
+class FormCriarComentario(FlaskForm):
+    comentario = StringField('Comentar', validators=[DataRequired(), Length(2, 140)])
+    id_post = HiddenField('id_post')
     botao_submit = SubmitField('Salvar')
