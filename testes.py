@@ -41,7 +41,7 @@ with app.app_context():
     for user in users:
         print(user.username)
         print(
-            ' id : {} \n Username: {} \n Apelido: {} \n Bloqueado: {} \n CodATi: {} \n DataNasc: {} \n TipoUser: {} \n Email: {} \n Senha: {}'.format(
+            ' id : {} \n Username: {} \n Apelido: {} \n Bloqueado: {} \n CodATi: {} \n DataNasc: {} \n TipoUser: {} \n Email: {} \n codigo: {}'.format(
                 user.id,
                 user.username,
                 user.apelido,
@@ -50,7 +50,7 @@ with app.app_context():
                 user.data_nascimento,
                 user.tipo_user,
                 user.email,
-                user.senha
+                user.codigo_email
             ))
 
 

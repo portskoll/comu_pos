@@ -56,3 +56,7 @@ class FormCriarComentario(FlaskForm):
     comentario = StringField('Comentar', validators=[DataRequired(), Length(2, 140)])
     id_post = HiddenField('id_post')
     botao_submit = SubmitField('Salvar')
+
+class FormValidarCodigoEmail(FlaskForm):
+    codigo = StringField('Digite o código recebido no seu e-mail', validators=[DataRequired(), Length(6)])
+    botao_submit = SubmitField('Enviar')

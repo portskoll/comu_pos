@@ -13,6 +13,7 @@ class Usuario(database.Model, UserMixin):
     apelido = database.Column(database.String, nullable=False, default='leitor')
     bloqueado = database.Column(database.Boolean, nullable=False, default=False)
     cod_ativado = database.Column(database.Boolean, nullable=False, default=False)
+    codigo_email = database.Column(database.String, nullable=False, default='000000')
     data_nascimento = database.Column(database.Date, nullable=False)
     tipo_user = database.Column(database.Integer, nullable=False, default=3)# 1 ADM - 2 AUTOR -3 LEITOR
     email = database.Column(database.String, nullable=False, unique=True)

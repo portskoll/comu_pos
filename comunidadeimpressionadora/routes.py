@@ -1,14 +1,15 @@
-import asyncio
-
 from flask import render_template, flash, redirect, url_for, request, abort
-from comunidadeimpressionadora.forms import FormLogin, FormCriarConta, FormEditarPerfil, FormCriarPost, FormCriarComentario
+from comunidadeimpressionadora.forms import FormLogin, FormCriarConta, FormEditarPerfil, FormCriarPost, \
+    FormCriarComentario, FormValidarCodigoEmail
 from comunidadeimpressionadora import app, database, bcrypt
 from comunidadeimpressionadora.models import Usuario, Post, Comentario
 from flask_login import login_user, logout_user, current_user, login_required
 import secrets
 import os
-from comunidadeimpressionadora.envia_codigo_email import enviar_email
 from PIL import Image
+from sqlalchemy import update
+from comunidadeimpressionadora.util.envia_codigo_email import enviar_email
+from comunidadeimpressionadora.util.gera_codigo import gerar_cod
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
@@ -25,12 +26,23 @@ def home():
 
     posts = Post.query.order_by(Post.id.desc())
     com = Comentario.query.order_by(Comentario.id.desc())
-    return render_template('home.html', posts=posts, form=form_com, com = com)
+    return render_template('home.html', posts=posts, form=form_com, com=com)
 
 
-@app.route('/contato')
+@app.route('/validar_email', methods=['GET', 'POST'])
 def contato():
-    return render_template('contato.html')
+    form = FormValidarCodigoEmail()
+
+    if form.validate_on_submit():
+        if form.codigo.data == current_user.codigo_email:
+            stmt = update(Usuario).values(cod_ativado=True).where(Usuario.id == current_user.id)
+            database.session.execute(stmt)
+            database.session.commit()
+            flash('Seu código foi ativado com sucesso!', 'alert-success')
+            return redirect(url_for('home'))
+        else:
+            flash('código invalido!', 'alert-success')
+    return render_template('contato.html', form=form)
 
 
 @app.route('/usuarios')
@@ -54,25 +66,35 @@ def login():
             if par_next:
                 return redirect(par_next)
             else:
-                return redirect(url_for('home'))
+                if current_user.cod_ativado:
+                    return redirect(url_for('home'))
+                else:
+                    return redirect(url_for('contato'))
         else:
             flash('Falha de Login. Email ou Senha Incorretos', 'alert-danger')
     if form_criar_conta.validate_on_submit() and 'botao_submit_criar_conta' in request.form:
-        senha_crypt = bcrypt.generate_password_hash(form_criar_conta.senha.data)
-        usuario = Usuario(
-            username=form_criar_conta.username.data,
-            apelido=form_criar_conta.apelido.data,
-            data_nascimento=form_criar_conta.aniversario.data,
-            bloqueado=False,
-            cod_ativado=False,
-            tipo_user=3,
-            email=form_criar_conta.email.data,
-            senha=senha_crypt)
-        database.session.add(usuario)
-        database.session.commit()
-        flash(f'Conta criada com sucesso  para o e-mail: {form_criar_conta.email.data}', 'alert-success')
+        #enviando o código de ativação
+        codigo = gerar_cod()
+        if enviar_email(form_criar_conta.email.data, 'O seu codigo de acesso {}'.format(codigo)):
+            senha_crypt = bcrypt.generate_password_hash(form_criar_conta.senha.data)
+            usuario = Usuario(
+                username=form_criar_conta.username.data,
+                apelido=form_criar_conta.apelido.data,
+                data_nascimento=form_criar_conta.aniversario.data,
+                codigo_email=codigo,
+                bloqueado=False,
+                cod_ativado=False,
+                tipo_user=3,
+                email=form_criar_conta.email.data,
+                senha=senha_crypt)
+            database.session.add(usuario)
+            database.session.commit()
+            flash(f'Um código de ativação foi enviado para seu email: {form_criar_conta.email.data} \n ', 'alert-success')
+            flash(f'Faça o login: {form_criar_conta.email.data} \n ', 'alert-success')
+        else:
+            flash('Erro ao enviar código de ativação', 'alert-success')
 
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
 
     return render_template('login.html', form_login=form_login, form_criar_conta=form_criar_conta)
 
