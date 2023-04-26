@@ -18,13 +18,17 @@ from comunidadeimpressionadora.util.gera_codigo import gerar_cod
 def home():
 
     form_com = FormCriarComentario()
+
     if form_com.validate_on_submit():
-        post = Comentario(
-            texto_comentario=form_com.comentario.data, autor_com=current_user, id_post=form_com.id_post.data)
-        database.session.add(post)
-        database.session.commit()
-        flash('Comentário slavo com sucesso!', 'alert-success')
-        return redirect(url_for('home'))
+        if current_user.is_authenticated:
+            post = Comentario(
+                texto_comentario=form_com.comentario.data, autor_com=current_user, id_post=form_com.id_post.data)
+            database.session.add(post)
+            database.session.commit()
+            flash('Comentário slavo com sucesso!', 'alert-success')
+            return redirect(url_for('home'))
+        else:
+            return redirect(url_for('login'))
 
     posts = Post.query.order_by(Post.id.desc())
     com = Comentario.query.order_by(Comentario.id.desc())
