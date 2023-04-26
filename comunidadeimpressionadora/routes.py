@@ -1,8 +1,10 @@
 from flask import render_template, flash, redirect, url_for, request, abort
+
+from comunidadeimpressionadora.controller.likes_controller import add_like, add_deslike
 from comunidadeimpressionadora.forms import FormLogin, FormCriarConta, FormEditarPerfil, FormCriarPost, \
     FormCriarComentario, FormValidarCodigoEmail
 from comunidadeimpressionadora import app, database, bcrypt
-from comunidadeimpressionadora.models import Usuario, Post, Comentario
+from comunidadeimpressionadora.models import Usuario, Post, Comentario, LikeNG, LikeG
 from flask_login import login_user, logout_user, current_user, login_required
 import secrets
 import os
@@ -10,6 +12,7 @@ from PIL import Image
 from sqlalchemy import update
 from comunidadeimpressionadora.util.envia_codigo_email import enviar_email
 from comunidadeimpressionadora.util.gera_codigo import gerar_cod
+
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
@@ -23,10 +26,23 @@ def home():
         flash('Comentário slavo com sucesso!', 'alert-success')
         return redirect(url_for('home'))
 
-
     posts = Post.query.order_by(Post.id.desc())
     com = Comentario.query.order_by(Comentario.id.desc())
-    return render_template('home.html', posts=posts, form=form_com, com=com)
+    if current_user.is_authenticated:
+        deslike = LikeNG.query.all()
+        like = LikeG.query.all()
+        deslike_ = []
+        like_ = []
+        for l in deslike:
+            if l.id_usuario == current_user.id:
+                deslike_.append(l.id_post)
+        for l in like:
+            if l.id_usuario == current_user.id:
+                like_.append(l.id_post)
+    else:
+        like_ = []
+        deslike_=[]
+    return render_template('home.html', posts=posts, form=form_com, com=com, deslike=deslike_, like=like_)
 
 
 @app.route('/validar_email', methods=['GET', 'POST'])
@@ -222,3 +238,21 @@ def excluir_post(post_id):
         return redirect(url_for('home'))
     else:
         abort(403)
+
+@app.route('/home/<post_id>/gostei', methods=['GET', 'POST'])
+@login_required
+def gostei_post(post_id):
+    user = current_user.id
+    add_like(user, post_id)
+
+    return redirect(url_for('home'))
+
+
+@app.route('/home/<post_id>/nao_gostei', methods=['GET', 'POST'])
+@login_required
+def nao_gostei_post(post_id):
+    user = current_user.id
+    add_deslike(user, post_id)
+
+    return redirect(url_for('home'))
+

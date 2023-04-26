@@ -33,7 +33,15 @@ class Post(database.Model):
     titulo = database.Column(database.String, nullable=False)
     corpo = database.Column(database.String, nullable=False)
     data_criacao = database.Column(database.DateTime, nullable=False, default=datetime.utcnow)
+    likes_g = database.relationship('LikeG', backref='post_like_gostei', lazy=True)
+    likes_ng = database.relationship('LikeNG', backref='post_like_ngostei', lazy=True)
     id_usuario = database.Column(database.Integer, database.ForeignKey('usuario.id'), nullable=False)
+
+    def contar_likes(self):
+        return len(self.likes_g)
+
+    def contar_deslikes(self):
+        return len(self.likes_ng)
 
 
 class Comentario(database.Model):
@@ -41,5 +49,20 @@ class Comentario(database.Model):
     texto_comentario = database.Column(database.String, nullable=False)
     id_usuario = database.Column(database.Integer, database.ForeignKey('usuario.id'), nullable=False)
     id_post = database.Column(database.Integer, nullable=False)
+
+
+class LikeG(database.Model):
+    id = database.Column(database.Integer, primary_key=True)
+    id_usuario = database.Column(database.Integer, nullable=False)
+    id_post = database.Column(database.Integer, database.ForeignKey('post.id'), nullable=False)
+
+
+
+
+class LikeNG(database.Model):
+    id = database.Column(database.Integer, primary_key=True)
+    id_usuario = database.Column(database.Integer, nullable=False)
+    id_post = database.Column(database.Integer, database.ForeignKey('post.id'), nullable=False)
+
 
 

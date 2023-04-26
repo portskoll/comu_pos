@@ -1,6 +1,7 @@
 
 from comunidadeimpressionadora import app, database
-from comunidadeimpressionadora.models import Usuario, Post
+from comunidadeimpressionadora.controller.likes_controller import add_like
+from comunidadeimpressionadora.models import Usuario, Post, LikeG, LikeNG
 from sqlalchemy import update
 
 
@@ -32,26 +33,26 @@ from sqlalchemy import update
 
 
 
-with app.app_context():
-    # stmt = update(Usuario).values(cod_ativado=False).where(Usuario.id == 1)
-    stmt = update(Usuario).values(tipo_user=1).where(Usuario.id == 1)
-    database.session.execute(stmt)
-    database.session.commit()
-    users = Usuario.query.all()
-    for user in users:
-        print(user.username)
-        print(
-            ' id : {} \n Username: {} \n Apelido: {} \n Bloqueado: {} \n CodATi: {} \n DataNasc: {} \n TipoUser: {} \n Email: {} \n codigo: {}'.format(
-                user.id,
-                user.username,
-                user.apelido,
-                user.bloqueado,
-                user.cod_ativado,
-                user.data_nascimento,
-                user.tipo_user,
-                user.email,
-                user.codigo_email
-            ))
+# with app.app_context():
+#     # stmt = update(Usuario).values(cod_ativado=False).where(Usuario.id == 1)
+#     stmt = update(Usuario).values(tipo_user=1).where(Usuario.id == 1)
+#     database.session.execute(stmt)
+#     database.session.commit()
+#     users = Usuario.query.all()
+#     for user in users:
+#         print(user.username)
+#         print(
+#             ' id : {} \n Username: {} \n Apelido: {} \n Bloqueado: {} \n CodATi: {} \n DataNasc: {} \n TipoUser: {} \n Email: {} \n codigo: {}'.format(
+#                 user.id,
+#                 user.username,
+#                 user.apelido,
+#                 user.bloqueado,
+#                 user.cod_ativado,
+#                 user.data_nascimento,
+#                 user.tipo_user,
+#                 user.email,
+#                 user.codigo_email
+#             ))
 
 
 # with app.app_context():
@@ -71,3 +72,41 @@ with app.app_context():
 #             user.email,
 #             user.senha
 #         ))
+
+
+# with app.app_context():
+#     like_1 = LikeG(id_usuario=1, id_post=2)
+#     like_2 = LikeNG(id_usuario=1, id_post=1)
+#     database.session.add(like_1)
+#     database.session.add(like_2)
+#     database.session.commit()
+
+
+# with app.app_context():
+#     deuLike = 0
+#     id_user = 1
+#     id_post = 1
+#
+#     verificaLike = LikeG.query.filter_by(id_usuario=id_user, id_post=id_post).first()
+#     if verificaLike:
+#         if verificaLike.gostei == deuLike:
+#             print('excluir like')
+#         else:
+#             print('Trocar like')
+#     else:
+#         print('Criar novo like')
+#     # like_1 = Like(gostei=1, id_usuario=1, id_post=1)
+#     #
+#     # database.session.add(like_1)
+#     # database.session.commit()
+
+
+# with app.app_context():
+#
+#     likes = Like.query.all()
+#     for like in likes:
+#         print('postID: {} - Usuario: {} - Goste {} - NGostei {}'.format(like.post_like.id, like.id_usuario ))
+
+
+
+add_like(1,1)

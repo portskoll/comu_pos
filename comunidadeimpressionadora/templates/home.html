@@ -12,74 +12,107 @@
     <div class="row border mt-4 p-3 meupost rounded">
         <div class="col">
             <div><img src="{{ url_for('static', filename='fotos_perfil/{}'.format(post.autor.foto_perfil)) }}"
-                 class="rounded" width="80"></div>
+                      class="rounded" width="80"></div>
             <div>
                 <strong>{{ post.autor.username}}</strong>
                 <p>{{ post.data_criacao.strftime('%d/%m/%Y - %H:%M:%S') }}</p>
             </div>
 
 
-
-
         </div>
-        <div >
+        <div>
             <a class="link_dec" href="{{ url_for('exibir_post', post_id=post.id) }}"><h3>{{post.titulo}}</h3></a>
             <h4>{{post.sub_titulo}}</h4>
             <p>{{post.corpo}}</p>
         </div>
+        <div class="p-2 mt-2 bg-primary d-flex justify-content-between rounded text-white stats1">
+            <div class="d-flex flex-column">
+
+                <form method="POST" action="{{ url_for('gostei_post', post_id=post.id) }}">
+
+             {% if post.id in like %}
+              <button type="submit" class="btn btn-danger">Gostei  <span class="number3">
+                  {% else %}
+                  <button type="submit" class="btn btn-primary">Gostei  <span class="number3">
+                  {% endif %}
+                 {{ post.contar_likes() }}
+
+
+              </span>
+              </button>
+                </form>
+
+            </div>
+
+            <div class="d-flex flex-column">
+                 <form method="POST" action="{{ url_for('nao_gostei_post', post_id=post.id) }}">
+                      {% if post.id in deslike %}
+              <button type="submit" class="btn btn-danger">Não Gostei  <span class="number3">
+                  {% else %}
+                  <button type="submit" class="btn btn-primary">Não Gostei  <span class="number3">
+                  {% endif %}
+                 {{ post.contar_deslikes() }}
+              </span>
+              </button>
+                </form>
+
+            </div>
+        </div>
         <div class="container">
 
-    <div class="row">
-        <div class="col">
+            <div class="row">
+                <div class="col">
 
-            <form method="post" action="" class="border p-4 mt-2" enctype="multipart/form-data">
-                {{ form.csrf_token}}
-                <legend>Publique um comentário:</legend>
-                <fieldset>
+                    <form method="post" action="" class="border p-4 mt-2" enctype="multipart/form-data">
+                        {{ form.csrf_token}}
+                        <legend>Publique um comentário:</legend>
+                        <fieldset>
 
-                    <div class="form-group">
-                        {{ form.comentario.label (class="form-control-label")}}
-                        {% if form.comentario.errors %}
-                        {{ form.comentario (class="form-control is-invalid")}}
-                        <div class="invalid-feedback">
-                            {% for erro in form.comentario.errors %}
-                            {{ erro }}
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        {{ form.comentario(class="form-control")}}
-                        {% endif %}
-                    </div>
-                    <div class="form-group">
+                            <div class="form-group">
+                                {{ form.comentario.label (class="form-control-label")}}
+                                {% if form.comentario.errors %}
+                                {{ form.comentario (class="form-control is-invalid")}}
+                                <div class="invalid-feedback">
+                                    {% for erro in form.comentario.errors %}
+                                    {{ erro }}
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {{ form.comentario(class="form-control")}}
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
 
-                        {{ form.id_post(value=post.id)}}
+                                {{ form.id_post(value=post.id)}}
 
-                    </div>
+                            </div>
 
-                </fieldset>
+                        </fieldset>
 
-                {{ form.botao_submit (class="btn-primary mt-2" )}}
-
-
-            </form>
+                        {{ form.botao_submit (class="btn-primary mt-2" )}}
 
 
-        </div>
-    </div>
-</div>
+                    </form>
 
-                    <div class="container border mb-1 mt-2 meupostcursos">
-                <div class="row justify-content-center mb-1">
-                    <div class="col col-12" style="text-align: center">
-                        <strong>Comentarios</strong><br>
-                        {% for curso in com %}
-                        {% if curso.id_post == post.id %}
-                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" disabled>{{ curso.texto_comentario }}</button>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
+
                 </div>
             </div>
+        </div>
+
+        <div class="container border mb-1 mt-2 meupostcursos">
+            <div class="row justify-content-center mb-1">
+                <div class="col col-12" style="text-align: center">
+                    <strong>Comentarios</strong><br>
+                    {% for curso in com %}
+                    {% if curso.id_post == post.id %}
+                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" disabled>{{ curso.texto_comentario
+                        }}
+                    </button>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
 
     </div>
 
