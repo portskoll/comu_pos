@@ -20,7 +20,7 @@ def home():
     form_com = FormCriarComentario()
 
     if form_com.validate_on_submit():
-        if current_user.is_authenticated:
+        if current_user.is_authenticated and current_user.cod_ativado:
             post = Comentario(
                 texto_comentario=form_com.comentario.data, autor_com=current_user, id_post=form_com.id_post.data)
             database.session.add(post)
@@ -28,7 +28,8 @@ def home():
             flash('Comentário slavo com sucesso!', 'alert-success')
             return redirect(url_for('home'))
         else:
-            return redirect(url_for('login'))
+            flash('Faça o Login, depois digite o codigo de ativação', 'alert-danger')
+            return redirect(url_for('sair'))
 
     posts = Post.query.order_by(Post.id.desc())
     com = Comentario.query.order_by(Comentario.id.desc())
@@ -124,7 +125,7 @@ def login():
 def sair():
     logout_user()
     flash('Logout feito com sucesso!', 'alert-success')
-    return redirect(url_for('home'))
+    return redirect(url_for('login'))
 
 
 
@@ -137,15 +138,20 @@ def perfil():
 @app.route('/post/criar', methods=['GET', 'POST'])
 @login_required
 def criar_post():
-    form = FormCriarPost()
-    if form.validate_on_submit():
-        post = Post(sub_titulo=form.sub_titulo.data, titulo=form.titulo.data, corpo=form.corpo.data, autor=current_user)
-        database.session.add(post)
-        database.session.commit()
-        flash('Post Gravado com Sucesso', 'alert-success')
-        return redirect(url_for('home'))
+    if current_user.cod_ativado:
+        form = FormCriarPost()
+        if form.validate_on_submit():
+            post = Post(sub_titulo=form.sub_titulo.data, titulo=form.titulo.data, corpo=form.corpo.data, autor=current_user)
+            database.session.add(post)
+            database.session.commit()
+            flash('Post Gravado com Sucesso', 'alert-success')
+            return redirect(url_for('home'))
 
-    return render_template('criarpost.html', form=form)
+        return render_template('criarpost.html', form=form)
+    else:
+        flash('Faça o Login, depois digite o codigo de ativação', 'alert-danger')
+        return redirect(url_for('sair'))
+
 
 def salvar_imagem(imagem):
 
@@ -246,17 +252,24 @@ def excluir_post(post_id):
 @app.route('/home/<post_id>/gostei', methods=['GET', 'POST'])
 @login_required
 def gostei_post(post_id):
-    user = current_user.id
-    add_like(user, post_id)
+    if current_user.cod_ativado:
+        user = current_user.id
+        add_like(user, post_id)
+        return redirect(url_for('home'))
 
-    return redirect(url_for('home'))
+    else:
+        flash('Faça o Login, depois digite o codigo de ativação', 'alert-danger')
+        return redirect(url_for('sair'))
 
 
 @app.route('/home/<post_id>/nao_gostei', methods=['GET', 'POST'])
 @login_required
 def nao_gostei_post(post_id):
-    user = current_user.id
-    add_deslike(user, post_id)
-
-    return redirect(url_for('home'))
+    if current_user.cod_ativado:
+        user = current_user.id
+        add_deslike(user, post_id)
+        return redirect(url_for('home'))
+    else:
+        flash('Faça o Login, depois digite o codigo de ativação', 'alert-danger')
+        return redirect(url_for('sair'))
 
